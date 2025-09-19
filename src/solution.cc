@@ -11,7 +11,7 @@ std::string DecodeMessage(const std::string& encoded, const std::map<std::string
 
   // parse string by character and check if it exists in the map
   int i = 0;
-  while (i < lowered_message.length()) {
+  while (i < static_cast<int>(lowered_message.length())) {
     bool match_made = false;
 
     // check if value exists in the map
