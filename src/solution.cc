@@ -1,37 +1,55 @@
 #include "solution.hpp"
 
 std::string DecodeMessage(const std::string& encoded, const std::map<std::string, std::string>& mapping) {
-  std::string lowered_message = encoded;
-  std::string decoded_message;
+  if (mapping.empty()) {
+    return encoded;
+  }
 
-  // makes passed message lowercase
-  for (char &c : lowered_message) {
+  std::string lowered = encoded;
+  for (char& c : lowered) {
     c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
   }
 
-  // parse string by character and check if it exists in the map
+  std::string decoded;
+  decoded.reserve(encoded.size());
+  int n = static_cast<int>(encoded.size());
   int i = 0;
-  while (i < static_cast<int>(lowered_message.length())) {
-    bool match_made = false;
+  bool any_replacement = false;
 
-    // check if value exists in the map
-    for (const auto& [key, value] : mapping) {
-      int key_length = static_cast<int>(key.size());
+  while (i < n) {
+    int best_len = 0;
+    const std::string* best_value = nullptr;
 
-      if (i + key_length <= static_cast<int>(lowered_message.size()) && lowered_message.substr(i, key_length) == key) {
-        decoded_message += value;
-        i += key_length;
-        match_made = true;
-        break;
+    for (const auto& kv : mapping) {
+      const std::string& key = kv.first;
+      const std::string& val = kv.second;
+      int klen = static_cast<int>(key.size());
+      if (klen == 0) continue;
+      if (i + klen > n) continue;
+
+      bool matches = true;
+      for (int j = 0; j < klen; ++j) {
+        if (lowered[i + j] != key[j]) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches && klen > best_len) {
+        best_len = klen;
+        best_value = &val;
       }
     }
 
-    // adds char to result string if match was not made
-    if (!(match_made)) {
-      decoded_message += lowered_message[i];
-      i++;
+    if (best_len > 0 && best_value != nullptr) {
+      decoded += *best_value;
+      i += best_len;
+      any_replacement = true;
+    } else {
+      decoded.push_back(encoded[i]);
+      ++i;
     }
   }
   
-  return decoded_message;
+  if (!any_replacement) return encoded;
+  return decoded;
 }
