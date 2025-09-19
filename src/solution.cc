@@ -10,30 +10,28 @@ std::string DecodeMessage(const std::string& encoded, const std::map<std::string
   }
 
   // parse string by character and check if it exists in the map
-  for (unsigned int i = 0; i < lowered_message.length(); ++i) {
-    
+  int i = 0;
+  while (i < lowered_message.length()) {
+    bool match_made = false;
+
+    // check if value exists in the map
+    for (const auto& [key, value] : mapping) {
+      int key_length = static_cast<int>(key.size());
+
+      if (i + key_length <= static_cast<int>(lowered_message.size()) && lowered_message.substr(i, key_length) == key) {
+        decoded_message += value;
+        i += key_length;
+        match_made = true;
+        break;
+      }
+    }
+
+    // adds char to result string if match was not made
+    if (!(match_made)) {
+      decoded_message += lowered_message[i];
+      i++;
+    }
   }
-
-  // // CAUSES ISSUES DOWN THE LINE populates vector by word
-  // std::vector<std::string> word_list;
-  // std::string single_word;
-  // for (unsigned int i = 0; i < lowered_message.length(); ++i) {
-  //   if (lowered_message[i] == ' ') {
-  //     word_list.push_back(single_word);
-  //     single_word = "";
-  //   } else {
-  //     single_word += word_list[i];
-  //   }
-  // }
-  
-  // // checks keys in mapping for decoded phrases
-  // for (unsigned int i = 0; i < word_list.size(); ++i) {
-  //   std::string phrase_to_find;
-  //   for (unsigned int j = i + 1; j < word_list.size(); ++j) {
-
-  //   }
-  // }
-  
   
   return decoded_message;
 }
